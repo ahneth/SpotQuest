@@ -1,0 +1,136 @@
+<!-- Version: 1.0.0 | Last Modified: 2026-11-22 23:34 HKT | Build: 20261122_2334 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>SpotQuest v1.0.0 — Local AR Photo Missions &amp; 300m Friend Radar | NetHustle</title>
+  <link id="sqFavicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%20width%3D%2264%22%20height%3D%2264%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22sqG%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2338bdf8%22%2F%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23f472b6%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%2256%22%20height%3D%2256%22%20rx%3D%2214%22%20fill%3D%22%230f172a%22%20stroke%3D%22url(%23sqG)%22%20stroke-width%3D%224%22%2F%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2230%22%20r%3D%2214%22%20fill%3D%22none%22%20stroke%3D%22%2338bdf8%22%20stroke-width%3D%223%22%20stroke-dasharray%3D%226%204%22%2F%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2230%22%20r%3D%225%22%20fill%3D%22%234ade80%22%2F%3E%3Cpath%20d%3D%22M32%2010%20L32%2016%20M32%2044%20L32%2050%20M12%2030%20L18%2030%20M46%2030%20L52%2030%22%20stroke%3D%22%23facc15%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fsvg%3E" />
+  <link id="sqAppleIcon" rel="apple-touch-icon" href="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%20width%3D%2264%22%20height%3D%2264%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22sqG%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2338bdf8%22%2F%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23f472b6%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%2256%22%20height%3D%2256%22%20rx%3D%2214%22%20fill%3D%22%230f172a%22%20stroke%3D%22url(%23sqG)%22%20stroke-width%3D%224%22%2F%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2230%22%20r%3D%2214%22%20fill%3D%22none%22%20stroke%3D%22%2338bdf8%22%20stroke-width%3D%223%22%20stroke-dasharray%3D%226%204%22%2F%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2230%22%20r%3D%225%22%20fill%3D%22%234ade80%22%2F%3E%3Cpath%20d%3D%22M32%2010%20L32%2016%20M32%2044%20L32%2050%20M12%2030%20L18%2030%20M46%2030%20L52%2030%22%20stroke%3D%22%23facc15%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fsvg%3E" />
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/spotquest.css" />
+</head>
+<body>
+
+  <div class="sq-app-shell">
+    <header class="sq-topbar" role="banner">
+      <div class="sq-brand">
+        <img id="sqBrandLogoImg" class="sq-brand-logo" src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%20width%3D%2264%22%20height%3D%2264%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22sqG%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2338bdf8%22%2F%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23f472b6%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%2256%22%20height%3D%2256%22%20rx%3D%2214%22%20fill%3D%22%230f172a%22%20stroke%3D%22url(%23sqG)%22%20stroke-width%3D%224%22%2F%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2230%22%20r%3D%2214%22%20fill%3D%22none%22%20stroke%3D%22%2338bdf8%22%20stroke-width%3D%223%22%20stroke-dasharray%3D%226%204%22%2F%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2230%22%20r%3D%225%22%20fill%3D%22%234ade80%22%2F%3E%3Cpath%20d%3D%22M32%2010%20L32%2016%20M32%2044%20L32%2050%20M12%2030%20L18%2030%20M46%2030%20L52%2030%22%20stroke%3D%22%23facc15%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fsvg%3E" alt="SpotQuest Neon Compass App Logo" width="36" height="36" />
+        <div>
+          <div class="sq-brand-title">SpotQuest <span style="font-size:0.75rem;color:var(--accent-magenta);">v1.0.0</span></div>
+          <div class="sq-brand-sub">Local AR Photo Missions &amp; 300m Friend Radar • Build 20261122_2334</div>
+        </div>
+      </div>
+      <div class="sq-topbar-pills">
+        <span id="sqZoneBadge" class="sq-pill sq-pill-privacy">ZONE_300M (~300m Fuzzy Mask)</span>
+        <span id="sqXpBadge" class="sq-pill sq-pill-xp">0 Zone XP • 0/6 Spots</span>
+        <button id="btnToggleAudio" type="button" class="sq-btn">Audio: Synth On</button>
+        <button id="btnOpenPlusModal" type="button" class="sq-btn sq-btn-pro">SpotQuest Plus ($4.99/mo)</button>
+      </div>
+    </header>
+
+    <div class="sq-safety-banner" role="region" aria-label="Public Space and Privacy Safety Notice">
+      <span><strong>300m Fuzzy-Zone Privacy &amp; Human Safety Guard:</strong> Exact GPS coordinates are never shared. Raw photo EXIF/GPS metadata is stripped on-device. Meet only in well-lit public landmarks.</span>
+      <div class="sq-controls-row">
+        <label for="sqSpeedSimSelect" style="font-size:0.76rem;">Movement Sensor:</label>
+        <select id="sqSpeedSimSelect" class="sq-select" aria-label="Simulate movement speed for safety lock">
+          <option value="1.4" selected>Walking (1.4 m/s — Safe)</option>
+          <option value="3.2">Jogging (3.2 m/s — Safe)</option>
+          <option value="11.5">Vehicle (11.5 m/s — Speed-Lock Triggered)</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="sqSpeedLockAlert" class="sq-speedlock-alert" role="alert" hidden>
+      Vehicle speed detected (&gt; 6.5 m/s). AR photo missions pause while moving fast for your safety.
+    </div>
+
+    <main class="sq-main-grid" role="main">
+      <section class="sq-panel" aria-labelledby="sqMapHeading">
+        <div class="sq-panel-header">
+          <h1 id="sqMapHeading" class="sq-panel-title">1. Neighborhood 300m Fuzzy-Zone Map &amp; Public Landmarks</h1>
+          <span class="sq-landmark-meta">OpenStreetMap Public Whitelist • Zero Exact GPS</span>
+        </div>
+        <div class="sq-canvas-wrap">
+          <canvas id="sqMapCanvas" width="640" height="340" aria-label="Neighborhood 300m Fuzzy-Zone Landmark Radar Map"></canvas>
+        </div>
+        <div id="sqLandmarkList" class="sq-landmark-list" aria-label="Curated Public Landmark Missions"></div>
+      </section>
+
+      <section class="sq-panel" aria-labelledby="sqArHeading">
+        <div class="sq-panel-header">
+          <h2 id="sqArHeading" class="sq-panel-title">2. AR Photo Viewfinder &amp; Zero-EXIF SpotCard Studio</h2>
+          <span class="sq-landmark-meta">1080×1350 Polaroid Export</span>
+        </div>
+        <div id="sqActiveMissionTitle" style="font-size:0.84rem;color:var(--accent-cyan);font-weight:600;">
+          Victoria Harbour Neon Promenade — "Frame the harbourfront skyline reflection with the SpotQuest Neon Compass"
+        </div>
+        <div class="sq-controls-row">
+          <label for="sqNicknameInput" style="font-size:0.78rem;">Explorer Handle:</label>
+          <input id="sqNicknameInput" class="sq-input" type="text" value="NeonExplorer" maxlength="24" aria-label="Explorer Nickname" />
+          <label for="sqFrameThemeSelect" style="font-size:0.78rem;">AR Frame:</label>
+          <select id="sqFrameThemeSelect" class="sq-select" aria-label="Select AR SpotCard Frame Style">
+            <option value="neon_polaroid" selected>Neon Polaroid</option>
+            <option value="harbour_gold">Harbour Sunset Gold</option>
+            <option value="emerald_radar">Emerald Radar Stamp</option>
+          </select>
+        </div>
+        <div class="sq-canvas-wrap">
+          <canvas id="sqArCanvas" width="540" height="675" aria-label="AR Photo Mission SpotCard Preview"></canvas>
+        </div>
+        <div class="sq-controls-row">
+          <button id="btnSnapSpotCard" type="button" class="sq-btn sq-btn-primary">Complete AR Photo Mission (+XP &amp; Unlock Lounge)</button>
+          <button id="btnDownloadSpotCard" type="button" class="sq-btn sq-btn-accent">Export SpotCard PNG (Zero-EXIF)</button>
+        </div>
+
+        <hr style="border:none;border-top:1px solid var(--border-subtle);margin:6px 0;" />
+
+        <div class="sq-panel-header">
+          <h2 id="sqLoungeHeading" class="sq-panel-title">3. Ephemeral 4-Hour Landmark Lounge &amp; Friend Radar</h2>
+          <span id="sqLoungeUnlockStatus" class="sq-landmark-meta">Complete AR Mission to unlock</span>
+        </div>
+        <div id="sqLoungeFeed" class="sq-lounge-feed" role="log" aria-live="polite"></div>
+        <div class="sq-controls-row">
+          <input id="sqLoungeMsgInput" class="sq-input" style="flex:1;" type="text" maxlength="280" placeholder="Say hello to explorers at this landmark (4h auto-expiring, zero PII)..." aria-label="Landmark Lounge Message" />
+          <button id="btnPostLoungeMsg" type="button" class="sq-btn sq-btn-primary">Post to Lounge</button>
+        </div>
+        <div id="sqLoungeFeedback" class="sq-landmark-meta" aria-live="polite"></div>
+      </section>
+    </main>
+  </div>
+
+  <div id="sqPlusModalBackdrop" class="sq-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="sqPlusModalTitle" hidden>
+    <div class="sq-modal">
+      <div class="sq-panel-header">
+        <h2 id="sqPlusModalTitle" class="sq-panel-title" style="color:var(--accent-gold);">SpotQuest Plus — Transparent Upgrade</h2>
+        <button id="btnClosePlusModal" type="button" class="sq-btn">Close</button>
+      </div>
+      <p style="font-size:0.84rem;color:var(--text-secondary);">
+        100% transparent pricing aligned with NetHustle's motto <em>"Make money, Legally, NEVER HARM ANY HUMAN"</em>. Core 300m radar, daily public-landmark AR missions, and 4-hour local lounges are free forever. Zero dark patterns, zero hidden fees, zero stalking mechanics.
+      </p>
+      <div class="sq-tier-grid">
+        <div class="sq-tier-card">
+          <div style="font-weight:700;color:var(--accent-cyan);">SpotQuest Plus Monthly</div>
+          <div style="font-size:1.25rem;font-weight:800;margin:4px 0;">$4.99 / mo</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);">• Custom Neon &amp; 3D AR Sticker Packs<br/>• 4K Ultra-HD SpotCard Exports<br/>• Private Friend-Crew Mission Builder</div>
+        </div>
+        <div class="sq-tier-card" style="border-color:var(--accent-gold);">
+          <div style="font-weight:700;color:var(--accent-gold);">SpotQuest Plus Annual (Save 35%)</div>
+          <div style="font-size:1.25rem;font-weight:800;margin:4px 0;">$39.00 / yr</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);">• All Monthly Perks Included<br/>• Seasonal City-Walk Collector Badges<br/>• Watermark Toggle on Shared SpotCards</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/version.js"></script>
+  <script src="js/geoPrivacy.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/mapRadar.js"></script>
+  <script src="js/arViewfinder.js"></script>
+  <script src="js/localLounge.js"></script>
+  <script src="js/audioSynth.js"></script>
+  <script src="js/proModal.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

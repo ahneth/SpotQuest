@@ -1,10 +1,10 @@
-<!-- Version: 1.1.0 | Last Modified: 2026-11-23 01:15 HKT | Build: 20261123_0115 -->
+<!-- Version: 1.2.0 | Last Modified: 2026-11-23 11:08 HKT | Build: 20261123_1108 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>SpotQuest v1.1.0 — Explore Spots, Snap AR Cards &amp; Meet Nearby | NetHustle</title>
+  <title>SpotQuest v1.2.0 — Real OSM Map, AR Photo Missions, PingPod &amp; Passport | NetHustle</title>
   <link id="sqFavicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%20width%3D%2264%22%20height%3D%2264%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22sqG%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2338bdf8%22%2F%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23f472b6%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%2256%22%20height%3D%2256%22%20rx%3D%2214%22%20fill%3D%22%230f172a%22%20stroke%3D%22url(%23sqG)%22%20stroke-width%3D%224%22%2F%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2230%22%20r%3D%2214%22%20fill%3D%22none%22%20stroke%3D%22%2338bdf8%22%20stroke-width%3D%223%22%20stroke-dasharray%3D%226%204%22%2F%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2230%22%20r%3D%225%22%20fill%3D%22%234ade80%22%2F%3E%3Cpath%20d%3D%22M32%2010%20L32%2016%20M32%2044%20L32%2050%20M12%2030%20L18%2030%20M46%2030%20L52%2030%22%20stroke%3D%22%23facc15%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fsvg%3E" />
   <link id="sqAppleIcon" rel="apple-touch-icon" href="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%20width%3D%2264%22%20height%3D%2264%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22sqG%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2338bdf8%22%2F%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23f472b6%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%2256%22%20height%3D%2256%22%20rx%3D%2214%22%20fill%3D%22%230f172a%22%20stroke%3D%22url(%23sqG)%22%20stroke-width%3D%224%22%2F%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2230%22%20r%3D%2214%22%20fill%3D%22none%22%20stroke%3D%22%2338bdf8%22%20stroke-width%3D%223%22%20stroke-dasharray%3D%226%204%22%2F%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2230%22%20r%3D%225%22%20fill%3D%22%234ade80%22%2F%3E%3Cpath%20d%3D%22M32%2010%20L32%2016%20M32%2044%20L32%2050%20M12%2030%20L18%2030%20M46%2030%20L52%2030%22%20stroke%3D%22%23facc15%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fsvg%3E" />
   <link rel="stylesheet" href="css/tokens.css" />
@@ -15,32 +15,37 @@
   <div class="sq-shell">
     <header class="sq-topbar" role="banner">
       <div class="sq-brand">
-        <img id="sqBrandLogoImg" class="sq-brand-logo" src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%20width%3D%2264%22%20height%3D%2264%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22sqG%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2338bdf8%22%2F%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23f472b6%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%2256%22%20height%3D%2256%22%20rx%3D%2214%22%20fill%3D%22%230f172a%22%20stroke%3D%22url(%23sqG)%22%20stroke-width%3D%224%22%2F%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2230%22%20r%3D%2214%22%20fill%3D%22none%22%20stroke%3D%22%2338bdf8%22%20stroke-width%3D%223%22%20stroke-dasharray%3D%226%204%22%2F%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2230%22%20r%3D%225%22%20fill%3D%22%234ade80%22%2F%3E%3Cpath%20d%3D%22M32%2010%20L32%2016%20M32%2044%20L32%2050%20M12%2030%20L18%2030%20M46%2030%20L52%2030%22%20stroke%3D%22%23facc15%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fsvg%3E" alt="SpotQuest App Logo" width="36" height="36" />
+        <img id="sqBrandLogoImg" class="sq-brand-logo" src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%20width%3D%2264%22%20height%3D%2264%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22sqG%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2338bdf8%22%2F%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23f472b6%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%2256%22%20height%3D%2256%22%20rx%3D%2214%22%20fill%3D%22%230f172a%22%20stroke%3D%22url(%23sqG)%22%20stroke-width%3D%224%22%2F%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2230%22%20r%3D%2214%22%20fill%3D%22none%22%20stroke%3D%22%2338bdf8%22%20stroke-width%3D%223%22%20stroke-dasharray%3D%226%204%22%2F%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2230%22%20r%3D%225%22%20fill%3D%22%234ade80%22%2F%3E%3Cpath%20d%3D%22M32%2010%20L32%2016%20M32%2044%20L32%2050%20M12%2030%20L18%2030%20M46%2030%20L52%2030%22%20stroke%3D%22%23facc15%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fsvg%3E" alt="SpotQuest App Logo" width="34" height="34" />
         <div>
-          <div class="sq-brand-title">SpotQuest</div>
-          <div class="sq-brand-tag">Explore Spots • Snap AR Cards • Meet Nearby</div>
+          <div class="sq-brand-title">SpotQuest <span style="font-size:0.74rem;color:var(--accent-magenta);">v1.2.0</span></div>
+          <div class="sq-brand-tag">Real OSM Map • Snap AR Cards • 300m Lounge &amp; PingPod</div>
         </div>
       </div>
       <div class="sq-top-actions">
+        <span id="sqConnStatusBadge" class="sq-conn-badge">⚪ Offline / Local Mode (0 synthetic bots)</span>
         <span id="sqXpBadge" class="sq-xp-pill">⭐ 0 XP • 0/6</span>
         <button id="btnToggleAudio" type="button" class="sq-btn sq-btn-sm">🔊 Sound</button>
-        <button id="btnOpenSafetyModal" type="button" class="sq-btn sq-btn-sm">🛡️ Safety</button>
+        <button id="btnOpenSafetyModal" type="button" class="sq-btn sq-btn-sm">🛡️ Server &amp; Safety</button>
         <button id="btnOpenPlusModal" type="button" class="sq-btn sq-btn-sm sq-btn-gold">✨ Plus</button>
       </div>
     </header>
 
-    <nav class="sq-stepper" role="tablist" aria-label="SpotQuest 3-Step Flow">
+    <nav class="sq-stepper" role="tablist" aria-label="SpotQuest 4-Step Flow">
       <button id="sqStepTab1" type="button" class="sq-step-btn" role="tab" aria-selected="true">
         <span class="sq-step-num">Step 1</span>
-        <span>🗺️ Pick a Spot</span>
+        <span>🗺️ 1. Explore Map</span>
       </button>
       <button id="sqStepTab2" type="button" class="sq-step-btn" role="tab" aria-selected="false">
         <span class="sq-step-num">Step 2</span>
-        <span>📸 Snap AR Photo</span>
+        <span>📸 2. Snap AR</span>
       </button>
       <button id="sqStepTab3" type="button" class="sq-step-btn" role="tab" aria-selected="false">
         <span class="sq-step-num">Step 3</span>
         <span id="sqStep3Label">🔒 3. Local Lounge</span>
+      </button>
+      <button id="sqStepTab4" type="button" class="sq-step-btn" role="tab" aria-selected="false">
+        <span class="sq-step-num">Step 4</span>
+        <span>🛂 4. Passport</span>
       </button>
     </nav>
 
@@ -48,23 +53,33 @@
       Moving too fast. AR camera missions pause in vehicles for your safety.
     </div>
 
-    <!-- SCREEN 1: PICK A SPOT -->
+    <!-- SCREEN 1: LARGE 60dvh INTERACTIVE OSM STREET MAP -->
     <section id="sqScreen1" class="sq-screen" role="tabpanel" aria-labelledby="sqStepTab1">
       <div class="sq-hero-head">
         <div>
-          <h1 class="sq-hero-title">Pick a Public Spot Near You</h1>
-          <p class="sq-hero-sub">Tap any glowing pin on the map (or below) to start a quick AR photo mission.</p>
+          <h1 class="sq-hero-title">Explore Public Spots on the Live Street Map</h1>
+          <p class="sq-hero-sub">Drag to pan, zoom in/out, or tap any glowing 300m zone pin to launch its AR photo mission.</p>
         </div>
-        <button id="btnFindNearMe" type="button" class="sq-btn sq-btn-sm">📍 Near Me</button>
+        <div class="sq-pill-row">
+          <button id="btnToggleMapTiles" type="button" class="sq-btn sq-btn-sm">🗺️ OSM Streets (On)</button>
+          <button id="btnFindNearMe" type="button" class="sq-btn sq-btn-sm sq-btn-primary">📍 Near Me</button>
+        </div>
       </div>
 
-      <div class="sq-canvas-box">
-        <canvas id="sqMapCanvas" width="680" height="320" aria-label="Interactive Neighborhood Spot Map"></canvas>
+      <div class="sq-map-viewport">
+        <canvas id="sqMapCanvas" width="860" height="520" aria-label="Interactive OpenStreetMap Neighborhood Radar"></canvas>
+        <div class="sq-map-controls-overlay">
+          <button id="btnZoomInMap" type="button" class="sq-btn sq-btn-sm" aria-label="Zoom In Map">➕ Zoom In</button>
+          <button id="btnZoomOutMap" type="button" class="sq-btn sq-btn-sm" aria-label="Zoom Out Map">➖ Zoom Out</button>
+        </div>
+        <div class="sq-map-attribution">
+          Map data &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors • 300m Privacy Mask
+        </div>
       </div>
 
       <div class="sq-spot-highlight">
         <div class="sq-spot-badges">
-          <span class="sq-badge sq-badge-emerald">🔒 300m Privacy Zone</span>
+          <span class="sq-badge sq-badge-emerald">🔒 300m Privacy Zone (Exact GPS Hidden)</span>
           <span id="sqSelectedSpotMeta" class="sq-badge sq-badge-cyan">Tsim Sha Tsui • Waterfront • +150 XP</span>
         </div>
         <div id="sqSelectedSpotName" style="font-size:1.12rem;font-weight:800;">Victoria Harbour Promenade</div>
@@ -81,10 +96,10 @@
     <section id="sqScreen2" class="sq-screen" role="tabpanel" aria-labelledby="sqStepTab2" hidden>
       <div class="sq-hero-head">
         <div>
-          <h2 class="sq-hero-title">Snap Your AR SpotCard</h2>
+          <h2 class="sq-hero-title">Snap Your Zero-EXIF AR SpotCard</h2>
           <p id="sqArMissionBanner" class="sq-hero-sub">Mission: Frame the harbourfront skyline with an AR sticker!</p>
         </div>
-        <button id="btnBackToMap" type="button" class="sq-btn sq-btn-sm">← Change Spot</button>
+        <button id="btnBackToMap" type="button" class="sq-btn sq-btn-sm">← Back to Map</button>
       </div>
 
       <div class="sq-pill-row">
@@ -110,12 +125,12 @@
       </div>
 
       <button id="btnSnapSpotCard" type="button" class="sq-btn sq-btn-shutter">
-        📸 SNAP &amp; COMPLETE MISSION (+XP)
+        📸 SNAP &amp; COMPLETE MISSION (+XP &amp; STAMP PASSPORT)
       </button>
 
       <div id="sqCelebrationBox" class="sq-celebration-box" hidden>
-        <div style="font-size:1rem;font-weight:800;color:var(--accent-emerald);">🎉 SpotCard Unlocked &amp; Local Lounge Opened!</div>
-        <p style="font-size:0.84rem;color:var(--text-secondary);">Your photo's EXIF/GPS data was stripped automatically. Save your collectible card or jump into the 4-hour local lounge to meet explorers nearby.</p>
+        <div style="font-size:1rem;font-weight:800;color:var(--accent-emerald);">🎉 SpotCard Stamped &amp; Local Lounge Opened!</div>
+        <p style="font-size:0.84rem;color:var(--text-secondary);">Your photo's EXIF/GPS data was stripped automatically. Save your collectible card or enter the 4-hour local lounge &amp; PingPod squad.</p>
         <div class="sq-pill-row">
           <button id="btnDownloadSpotCard" type="button" class="sq-btn sq-btn-emerald" style="flex:1;">⬇️ Save SpotCard PNG</button>
           <button id="btnEnterUnlockedLounge" type="button" class="sq-btn sq-btn-primary" style="flex:1;">💬 Enter Local Lounge →</button>
@@ -123,12 +138,12 @@
       </div>
     </section>
 
-    <!-- SCREEN 3: LOCAL LOUNGE -->
+    <!-- SCREEN 3: REAL CLIENT-SERVER LOCAL LOUNGE & 3-6 PERSON PINGPOD -->
     <section id="sqScreen3" class="sq-screen" role="tabpanel" aria-labelledby="sqStepTab3" hidden>
       <div class="sq-hero-head">
         <div>
           <h2 id="sqLoungeSpotTitle" class="sq-hero-title">Victoria Harbour — 4h Local Lounge</h2>
-          <p class="sq-hero-sub">Ephemeral neighborhood chat • Messages auto-delete after 4 hours • Zero exact GPS</p>
+          <p id="sqHonestPeerBanner" class="sq-hero-sub">⚪ 0 other live explorers in this 300m zone right now (Zero synthetic bots).</p>
         </div>
         <input id="sqNicknameInput" class="sq-input" style="max-width:155px;" type="text" value="Explorer" maxlength="24" aria-label="Your chat nickname" />
       </div>
@@ -136,11 +151,25 @@
       <div id="sqLoungeLockedCard" class="sq-locked-card">
         <div style="font-size:2rem;">🔒</div>
         <div style="font-size:1rem;font-weight:800;">Snap a Quick AR Photo First to Unlock</div>
-        <p style="font-size:0.85rem;color:var(--text-secondary);max-width:380px;">Completing the 10-second AR photo mission verifies you're exploring this spot and unlocks its 4-hour neighborhood chat room.</p>
+        <p style="font-size:0.85rem;color:var(--text-secondary);max-width:380px;">Completing the AR photo mission verifies you're exploring this spot and unlocks its 4-hour neighborhood chat room &amp; PingPod group missions.</p>
         <button id="btnUnlockFromLounge" type="button" class="sq-btn sq-btn-primary">📸 Go Snap AR Photo Now →</button>
       </div>
 
       <div id="sqLoungeUnlockedArea" style="display:flex;flex-direction:column;gap:12px;" hidden>
+        <!-- POD2B-201: 1-Tap PingPod 3-6 Person Group Mission Mode -->
+        <div class="sq-pingpod-card">
+          <div class="sq-hero-head">
+            <div style="font-weight:800;color:var(--accent-emerald);">🤝 PingPod — 3 to 6 Person Group Mission (60m TTL)</div>
+            <div class="sq-pill-row">
+              <button id="btnStartPingPod" type="button" class="sq-btn sq-btn-sm sq-btn-emerald">🤝 Start 3–6 Person PingPod</button>
+              <button id="btnLeavePingPod" type="button" class="sq-btn sq-btn-sm" hidden>Leave</button>
+            </div>
+          </div>
+          <p id="sqPingPodStatusText" style="font-size:0.82rem;color:var(--text-secondary);">
+            Form a 3–6 person 60-minute group photo mission at this public landmark.
+          </p>
+        </div>
+
         <div>
           <div style="font-size:0.76rem;color:var(--text-muted);margin-bottom:6px;font-weight:700;">1-TAP ICEBREAKERS:</div>
           <div id="sqQuickReplyRow" class="sq-pill-row"></div>
@@ -149,32 +178,50 @@
         <div id="sqLoungeFeed" class="sq-lounge-feed" role="log" aria-live="polite"></div>
 
         <div class="sq-pill-row">
-          <input id="sqLoungeMsgInput" class="sq-input" style="flex:1;" type="text" maxlength="280" placeholder="Say hi to nearby explorers (auto-deletes in 4h)..." aria-label="Type a lounge message" />
+          <input id="sqLoungeMsgInput" class="sq-input" style="flex:1;" type="text" maxlength="280" placeholder="Say hi to nearby explorers (4h TTL, phone numbers blocked)..." aria-label="Type a lounge message" />
           <button id="btnPostLoungeMsg" type="button" class="sq-btn sq-btn-primary">Send</button>
         </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 4: SPOTQUEST EXPLORER PASSPORT (POD2B-202) -->
+    <section id="sqScreen4" class="sq-screen" role="tabpanel" aria-labelledby="sqStepTab4" hidden>
+      <div class="sq-hero-head">
+        <div>
+          <h2 class="sq-hero-title">🛂 Your SpotQuest Explorer Passport</h2>
+          <p class="sq-hero-sub">Collect district stamps by completing AR photo missions across public landmarks, then export your Passport PNG.</p>
+        </div>
+        <button id="btnDownloadPassport" type="button" class="sq-btn sq-btn-emerald">⬇️ Export Passport PNG</button>
+      </div>
+      <div class="sq-canvas-box">
+        <canvas id="sqPassportCanvas" width="680" height="440" aria-label="SpotQuest Explorer Passport Stamp Grid"></canvas>
       </div>
     </section>
   </div>
 
   <div id="sqToast" class="sq-toast" role="status" aria-live="polite"></div>
 
-  <!-- SAFETY & PRIVACY MODAL -->
+  <!-- SERVER ARCHITECTURE & SAFETY MODAL -->
   <div id="sqSafetyModalBackdrop" class="sq-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="sqSafetyTitle" hidden>
     <div class="sq-modal">
       <div class="sq-hero-head">
-        <h2 id="sqSafetyTitle" class="sq-hero-title" style="color:var(--accent-emerald);">🛡️ Privacy &amp; Safety Guardrails</h2>
+        <h2 id="sqSafetyTitle" class="sq-hero-title" style="color:var(--accent-emerald);">🛡️ Client-Server Sync &amp; Safety Guardrails</h2>
         <button id="btnCloseSafetyModal" type="button" class="sq-btn sq-btn-sm">Close</button>
       </div>
-      <p style="font-size:0.84rem;color:var(--text-secondary);">
-        Built under NetHustle's motto: <strong>"Make money, Legally, NEVER HARM ANY HUMAN"</strong>.
+      <p style="font-size:0.82rem;color:var(--text-secondary);">
+        <strong>Real Client-Server Architecture (Cloudflare Worker + Durable Object):</strong> Deploy <code>backend/worker.js</code> &amp; <code>backend/wrangler.toml</code> (included in the release ZIP) to Cloudflare Workers free tier ($0.00/mo) and paste your WebSocket URL below for live cross-device 300m zone rooms. When blank, SpotQuest runs in honest local mode with <strong>zero synthetic bots</strong>.
       </p>
-      <ul style="font-size:0.83rem;color:var(--text-secondary);padding-left:18px;display:flex;flex-direction:column;gap:6px;">
-        <li><strong>300m Fuzzy Privacy Zone:</strong> Your exact GPS coordinates are never shared or stored.</li>
-        <li><strong>Automatic EXIF &amp; GPS Stripping:</strong> Every SpotCard is redrawn on-device so camera metadata is completely removed.</li>
-        <li><strong>4-Hour Ephemeral Lounges:</strong> Chat messages auto-delete after 4 hours, with phone-number leak blocking and 1-tap Block/Report.</li>
-        <li><strong>Vehicle Speed-Lock (&gt; 6.5 m/s):</strong> AR missions pause automatically while driving or riding fast.</li>
+      <div class="sq-pill-row">
+        <input id="sqApiUrlInput" class="sq-input" style="flex:1;" type="url" placeholder="wss://spotquest-rooms.your-subdomain.workers.dev" aria-label="Cloudflare Worker WebSocket Endpoint URL" />
+        <button id="btnConnectServer" type="button" class="sq-btn sq-btn-sm sq-btn-primary">Connect</button>
+      </div>
+      <ul style="font-size:0.81rem;color:var(--text-secondary);padding-left:18px;display:flex;flex-direction:column;gap:5px;">
+        <li><strong>300m Fuzzy Privacy Zone:</strong> Exact GPS coordinates are quantized on-device before any network call.</li>
+        <li><strong>Zero-EXIF Canvas Redraw:</strong> All camera metadata is stripped before saving or sharing.</li>
+        <li><strong>Hardened HK &amp; Intl Phone Filter (OBS-P2B-20261123-01 Closed):</strong> Blocks 8-digit HK (<code>9123-4567</code>) and 10-digit phone numbers in chat.</li>
+        <li><strong>Vehicle Speed-Lock (&gt; 6.5 m/s):</strong> Pauses AR missions while moving at vehicle speeds.</li>
       </ul>
-      <div class="sq-pill-row" style="margin-top:4px;">
+      <div class="sq-pill-row">
         <label for="sqSpeedSimSelect" style="font-size:0.8rem;font-weight:700;">Test Speed-Lock:</label>
         <select id="sqSpeedSimSelect" class="sq-select" aria-label="Test movement speed safety lock">
           <option value="1.4" selected>Walking (1.4 m/s — Active)</option>
@@ -192,13 +239,13 @@
         <button id="btnClosePlusModal" type="button" class="sq-btn sq-btn-sm">Close</button>
       </div>
       <p style="font-size:0.84rem;color:var(--text-secondary);">
-        Core exploration, AR photo missions, and 4-hour local lounges are <strong>free forever</strong>. Zero dark patterns, zero hidden fees.
+        Core exploration, AR photo missions, 4-hour local lounges, and PingPods are <strong>free forever</strong>. Zero dark patterns, zero hidden fees.
       </p>
       <div class="sq-tier-grid">
         <div class="sq-tier-card">
           <div style="font-weight:800;color:var(--accent-cyan);">Monthly</div>
           <div style="font-size:1.25rem;font-weight:800;margin:4px 0;">$4.99 / mo</div>
-          <div style="font-size:0.78rem;color:var(--text-secondary);">• Custom AR Sticker Packs<br/>• 4K SpotCard Exports<br/>• Private Crew Missions</div>
+          <div style="font-size:0.78rem;color:var(--text-secondary);">• Custom AR Sticker Packs<br/>• 4K SpotCard &amp; Passport Exports<br/>• Private Crew PingPod Missions</div>
         </div>
         <div class="sq-tier-card" style="border-color:var(--accent-gold);">
           <div style="font-weight:800;color:var(--accent-gold);">Annual (Save 35%)</div>

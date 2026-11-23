@@ -1,0 +1,14 @@
+# Version: 1.2.0 | Last Modified: 2026-11-23 11:08 HKT | Build: 20261123_1108
+# Deployable Cloudflare Worker + Durable Object configuration for SpotQuest v1.2.0
+name = "spotquest-realtime-rooms"
+main = "worker.js"
+compatibility_date = "2026-11-23"
+
+[durable_objects]
+bindings = [
+  { name = "SPOTQUEST_ROOMS", class_name = "SpotQuestZoneRoom" }
+]
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["SpotQuestZoneRoom"]

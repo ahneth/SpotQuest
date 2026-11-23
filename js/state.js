@@ -1,9 +1,9 @@
-// Version: 1.1.0 | Last Modified: 2026-11-23 01:15 HKT | Build: 20261123_0115
+// Version: 1.2.0 | Last Modified: 2026-11-23 11:08 HKT | Build: 20261123_1108
 // Module: js/state.js — SafeStateEngine Zero-PII & Zero-Synthetic-Data Local Vault (Victor Lin 03 & Priya Nair 18)
 (function (global) {
   'use strict';
-  const STORAGE_KEY = 'spotquest_v1_1_state';
-  const SCHEMA_VERSION = '1.1.0';
+  const STORAGE_KEY = 'spotquest_v1_2_state';
+  const SCHEMA_VERSION = '1.2.0';
 
   function createEmptyState() {
     return {
@@ -21,6 +21,12 @@
       arStickerKey: 'compass',
       stickerPos: { x: 0.76, y: 0.24 },
       photoSourceMode: 'scene',
+      mapTileMode: 'osm_streets',
+      mapCenterLat: 22.305,
+      mapCenterLon: 114.175,
+      mapZoom: 12,
+      apiEndpointUrl: '',
+      activePingPod: null,
       lastMissionCompletedId: null,
       updatedAt: new Date().toISOString(),
     };

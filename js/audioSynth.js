@@ -1,4 +1,4 @@
-// Version: 1.1.0 | Last Modified: 2026-11-23 01:15 HKT | Build: 20261123_0115
+// Version: 1.2.0 | Last Modified: 2026-11-23 11:08 HKT | Build: 20261123_1108
 // Module: js/audioSynth.js — Zero-Asset Web Audio API Synth Cues with Soft Gain Limiter (Aria Vance-Sato 14 & Kai Lindqvist 17)
 (function (global) {
   'use strict';

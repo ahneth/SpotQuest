@@ -1,4 +1,4 @@
-// Version: 1.1.0 | Last Modified: 2026-11-23 01:15 HKT | Build: 20261123_0115
+// Version: 1.2.0 | Last Modified: 2026-11-23 11:08 HKT | Build: 20261123_1108
 // Module: js/proModal.js — Transparent SpotQuest Plus ($4.99/mo or $39/yr) & Static-Clean SVG Logo (Elena Park 16)
 (function (global) {
   'use strict';
@@ -28,6 +28,9 @@
     const s = String(svgString);
     return {
       ok: !/<script/i.test(s) && !/\bon[a-z]+\s*=/i.test(s) && !/(?:xlink:href|href)\s*=\s*["']https?:/i.test(s),
+      hasScript: /<script/i.test(s),
+      hasInlineEvent: /\bon[a-z]+\s*=/i.test(s),
+      hasExternalHref: /(?:xlink:href|href)\s*=\s*["']https?:/i.test(s),
     };
   }
 

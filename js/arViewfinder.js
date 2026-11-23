@@ -1,5 +1,5 @@
-// Version: 1.1.0 | Last Modified: 2026-11-23 01:15 HKT | Build: 20261123_0115
-// Module: js/arViewfinder.js — Live Camera / Upload / Custom Scene AR Viewfinder, Tappable Stickers & Zero-EXIF SpotCard (Aria Vance-Sato 14 & Elena Park 16)
+// Version: 1.2.0 | Last Modified: 2026-11-23 11:08 HKT | Build: 20261123_1108
+// Module: js/arViewfinder.js — Live Camera / Upload / Custom Scene AR Viewfinder, Tappable Stickers, Zero-EXIF SpotCard & Explorer Passport PNG Exporter (Aria Vance-Sato 14 & Elena Park 16)
 (function (global) {
   'use strict';
 
@@ -32,7 +32,6 @@
     ctx.fillStyle = grad;
     ctx.fillRect(x, y, w, h);
 
-    // Stylized skyline / landmark silhouettes
     ctx.fillStyle = 'rgba(7, 11, 20, 0.72)';
     const bars = [0.18, 0.34, 0.25, 0.45, 0.30, 0.52, 0.36, 0.22, 0.40, 0.28];
     const bw = w / bars.length;
@@ -41,7 +40,6 @@
       ctx.fillRect(x + i * bw + 3, y + h - rectH, bw - 6, rectH);
     });
 
-    // Neon horizon reflection line
     ctx.strokeStyle = theme.border;
     ctx.lineWidth = 2;
     ctx.beginPath();
@@ -49,7 +47,6 @@
     ctx.lineTo(x + w, y + h * 0.78);
     ctx.stroke();
 
-    // Glowing moon/sun orb
     ctx.beginPath();
     ctx.arc(x + w * 0.26, y + h * 0.28, 34, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(250, 204, 21, 0.28)';
@@ -98,7 +95,7 @@
     stickerPos = { x: 0.76, y: 0.24 },
     explorerNickname = 'Explorer',
     sourceMedia = null,
-    timestampStr = '2026-11-23 01:15 HKT',
+    timestampStr = '2026-11-23 11:08 HKT',
   }) {
     if (!canvas || typeof canvas.getContext !== 'function') {
       return { ok: false, reason: 'NO_CANVAS_CONTEXT' };
@@ -108,14 +105,12 @@
     const w = canvas.width || 540;
     const h = canvas.height || 640;
 
-    // 1. Polaroid Outer Frame (Canvas 2D redraw strips 100% of raw EXIF/GPS metadata)
     ctx.fillStyle = theme.bg;
     ctx.fillRect(0, 0, w, h);
     ctx.strokeStyle = theme.border;
     ctx.lineWidth = 6;
     ctx.strokeRect(10, 10, w - 20, h - 20);
 
-    // 2. Photo Viewport
     const vpX = 26, vpY = 26, vpW = w - 52, vpH = Math.round(h * 0.66);
     ctx.fillStyle = '#090e1a';
     ctx.fillRect(vpX, vpY, vpW, vpH);
@@ -130,7 +125,6 @@
       drawSceneBackdrop(ctx, vpX, vpY, vpW, vpH, landmark ? landmark.sceneStyle : 'harbour', theme);
     }
 
-    // 3. Viewfinder corner reticles & draggable/tappable AR sticker
     ctx.strokeStyle = theme.accent;
     ctx.lineWidth = 2.5;
     const c = 22;
@@ -141,7 +135,6 @@
 
     drawArSticker(ctx, vpX, vpY, vpW, vpH, stickerKey, stickerPos);
 
-    // Bottom viewport privacy badge
     ctx.fillStyle = 'rgba(7, 11, 20, 0.80)';
     ctx.fillRect(vpX + 12, vpY + vpH - 38, vpW - 24, 28);
     ctx.textAlign = 'left';
@@ -149,7 +142,6 @@
     ctx.fillStyle = '#4ade80';
     ctx.fillText('EXIF & EXACT GPS STRIPPED • TAP PHOTO TO MOVE AR STICKER', vpX + 20, vpY + vpH - 20);
 
-    // 4. Polaroid Caption Footer
     const footY = vpY + vpH + 30;
     ctx.font = '800 20px Inter, sans-serif';
     ctx.fillStyle = '#f8fafc';
@@ -174,6 +166,76 @@
     return { ok: true, exifStripped: true, zoneId, frameTheme: frameThemeKey, stickerKey };
   }
 
+  function renderExplorerPassportCanvas({
+    canvas,
+    landmarks = [],
+    completedIds = [],
+    explorerNickname = 'Explorer',
+    totalXp = 0,
+  }) {
+    if (!canvas || typeof canvas.getContext !== 'function') {
+      return { ok: false, reason: 'NO_CANVAS_CONTEXT' };
+    }
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width || 680;
+    const h = canvas.height || 440;
+
+    ctx.fillStyle = '#070b14';
+    ctx.fillRect(0, 0, w, h);
+    ctx.strokeStyle = '#facc15';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(10, 10, w - 20, h - 20);
+
+    ctx.textAlign = 'left';
+    ctx.font = '800 22px Inter, sans-serif';
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillText(`SPOTQUEST EXPLORER PASSPORT — ${String(explorerNickname).slice(0, 18)}`, 28, 46);
+
+    ctx.font = '700 13px JetBrains Mono, monospace';
+    ctx.fillStyle = '#38bdf8';
+    ctx.fillText(`Stamps Collected: ${completedIds.length}/${landmarks.length}  •  Total XP: ${totalXp}  •  Zero-EXIF Verified`, 28, 70);
+
+    // 3x2 grid of district stamp slots
+    const cols = 3;
+    const cardW = Math.floor((w - 76) / cols);
+    const cardH = 140;
+    landmarks.slice(0, 6).forEach((lm, idx) => {
+      const col = idx % cols;
+      const row = Math.floor(idx / cols);
+      const x = 28 + col * (cardW + 10);
+      const y = 92 + row * (cardH + 14);
+      const unlocked = completedIds.includes(lm.id);
+
+      ctx.fillStyle = unlocked ? 'rgba(74, 222, 128, 0.14)' : 'rgba(30, 41, 59, 0.7)';
+      ctx.fillRect(x, y, cardW, cardH);
+      ctx.strokeStyle = unlocked ? '#4ade80' : '#334155';
+      ctx.lineWidth = unlocked ? 2.5 : 1.5;
+      ctx.strokeRect(x, y, cardW, cardH);
+
+      ctx.font = '800 13px Inter, sans-serif';
+      ctx.fillStyle = unlocked ? '#4ade80' : '#94a3b8';
+      ctx.fillText(unlocked ? '✓ STAMPED' : '○ UNVISITED', x + 12, y + 26);
+
+      ctx.font = '700 14px Inter, sans-serif';
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillText((lm.shortName || lm.name).slice(0, 18), x + 12, y + 54);
+
+      ctx.font = '600 11px Inter, sans-serif';
+      ctx.fillStyle = '#cbd5e1';
+      ctx.fillText(lm.district, x + 12, y + 76);
+
+      ctx.font = '700 11px JetBrains Mono, monospace';
+      ctx.fillStyle = unlocked ? '#facc15' : '#64748b';
+      ctx.fillText(lm.badge.slice(0, 20), x + 12, y + 104);
+    });
+
+    ctx.font = '700 12px JetBrains Mono, monospace';
+    ctx.fillStyle = '#f472b6';
+    ctx.fillText('SpotQuest by NetHustle • Make money, Legally, NEVER HARM ANY HUMAN', 28, h - 22);
+
+    return { ok: true, stampsCount: completedIds.length, totalLandmarks: landmarks.length };
+  }
+
   function exportSpotCardDataUrl(canvas) {
     if (!canvas || typeof canvas.toDataURL !== 'function') return '';
     return canvas.toDataURL('image/png');
@@ -183,6 +245,7 @@
     AR_FRAME_THEMES,
     AR_STICKERS,
     renderSpotCardCanvas,
+    renderExplorerPassportCanvas,
     exportSpotCardDataUrl,
   });
 })(typeof window !== 'undefined' ? window : globalThis);

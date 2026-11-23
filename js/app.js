@@ -1,5 +1,5 @@
-// Version: 1.1.0 | Last Modified: 2026-11-23 01:15 HKT | Build: 20261123_0115
-// Module: js/app.js — Guided 3-Step Controller, Interactive Map Clicks, Live Camera/Upload & Instant Toast Feedback (Kai Lindqvist 17)
+// Version: 1.2.0 | Last Modified: 2026-11-23 11:08 HKT | Build: 20261123_1108
+// Module: js/app.js — Guided 4-Tab Controller (60dvh OSM Map, AR Photo, Client-Server Lounge & PingPod, Explorer Passport) & Interactive Control Audit (Kai Lindqvist 17)
 (function (global) {
   'use strict';
 
@@ -8,6 +8,10 @@
   let cameraVideoEl = null;
   let cameraRafId = null;
   let toastTimer = null;
+  let isDraggingMap = false;
+  let dragStartX = 0;
+  let dragStartY = 0;
+  let dragMoved = false;
 
   function createSafeEl(tag, className = '', text = '') {
     const el = document.createElement(tag);
@@ -102,7 +106,7 @@
   }
 
   function setActiveStep(stepNum) {
-    const n = Math.min(3, Math.max(1, Number(stepNum) || 1));
+    const n = Math.min(4, Math.max(1, Number(stepNum) || 1));
     if (n !== 2) stopCameraLoop();
     global.SpotState.saveState({ activeStep: n });
     renderUI();
@@ -126,14 +130,26 @@
     const activeLm = getActiveLandmark();
     const isUnlocked = global.SpotState.isLandmarkUnlocked(activeLm.id);
 
-    // 1. Header XP pill
+    // 1. Header XP & Honest Server Connection Badge
     const xpPill = document.getElementById('sqXpBadge');
     if (xpPill) {
       xpPill.textContent = `⭐ ${state.totalXp} XP • ${state.completedMissions.length}/${landmarks.length}`;
     }
 
-    // 2. Stepper tabs & visible screen
-    [1, 2, 3].forEach((n) => {
+    const connStatus = global.SpotLounge.getConnectionStatus();
+    const connBadge = document.getElementById('sqConnStatusBadge');
+    if (connBadge) {
+      if (connStatus.isLiveServer) {
+        connBadge.textContent = `🟢 Live Server (${connStatus.livePeerCount} in zone)`;
+        connBadge.classList.add('is-live');
+      } else {
+        connBadge.textContent = '⚪ Offline / Local Mode (0 synthetic bots)';
+        connBadge.classList.remove('is-live');
+      }
+    }
+
+    // 2. Stepper tabs (1..4)
+    [1, 2, 3, 4].forEach((n) => {
       const tab = document.getElementById(`sqStepTab${n}`);
       const screen = document.getElementById(`sqScreen${n}`);
       const isActive = state.activeStep === n;
@@ -163,15 +179,43 @@
     }
     if (btnSnap) btnSnap.disabled = !speedCheck.allowed;
 
-    // 4. Screen 1: Map Canvas & Selected Spot Hero Card
+    // 4. Screen 1: Large 60dvh Interactive OSM Map Canvas & Selected Spot Card
     const mapCanvas = document.getElementById('sqMapCanvas');
     if (mapCanvas) {
       global.SpotMapRadar.renderNeighborhoodRadar(
         mapCanvas,
         landmarks,
         activeLm.id,
-        state.completedMissions
+        state.completedMissions,
+        {
+          centerLat: state.mapCenterLat,
+          centerLon: state.mapCenterLon,
+          zoom: state.mapZoom,
+          tileMode: state.mapTileMode,
+          onTileLoaded: () => {
+            if (global.SpotState.getState().activeStep === 1) {
+              global.SpotMapRadar.renderNeighborhoodRadar(
+                mapCanvas,
+                landmarks,
+                activeLm.id,
+                state.completedMissions,
+                {
+                  centerLat: global.SpotState.getState().mapCenterLat,
+                  centerLon: global.SpotState.getState().mapCenterLon,
+                  zoom: global.SpotState.getState().mapZoom,
+                  tileMode: global.SpotState.getState().mapTileMode,
+                }
+              );
+            }
+          },
+        }
       );
+    }
+
+    const btnTileMode = document.getElementById('btnToggleMapTiles');
+    if (btnTileMode) {
+      btnTileMode.textContent =
+        state.mapTileMode === 'osm_streets' ? '🗺️ OSM Streets (On)' : '🌐 Vector Grid (Offline)';
     }
 
     const spotNameEl = document.getElementById('sqSelectedSpotName');
@@ -205,15 +249,20 @@
         );
         btn.addEventListener('click', () => {
           global.SpotAudio.playCue('tap');
-          global.SpotState.saveState({ selectedLandmarkId: lm.id, lastMissionCompletedId: null });
-          showToast(`📍 Selected ${lm.name}`);
+          global.SpotState.saveState({
+            selectedLandmarkId: lm.id,
+            mapCenterLat: lm.lat,
+            mapCenterLon: lm.lon,
+            lastMissionCompletedId: null,
+          });
+          showToast(`📍 Centered map on ${lm.name}`);
           renderUI();
         });
         spotGrid.appendChild(btn);
       });
     }
 
-    // 5. Screen 2: AR Viewfinder, Sticker Pills, Frame Pills & Celebration Box
+    // 5. Screen 2: AR Viewfinder
     const arMissionBanner = document.getElementById('sqArMissionBanner');
     if (arMissionBanner) {
       arMissionBanner.textContent = `Mission at ${activeLm.name}: ${activeLm.missionPrompt}`;
@@ -261,15 +310,34 @@
       else celBox.setAttribute('hidden', 'hidden');
     }
 
-    // 6. Screen 3: Local Lounge
-    renderLounge(activeLm, isUnlocked);
+    // 6. Screen 3: Local Lounge & PingPod Group Mission
+    renderLounge(activeLm, isUnlocked, connStatus);
+
+    // 7. Screen 4: Explorer Passport
+    const passportCanvas = document.getElementById('sqPassportCanvas');
+    if (passportCanvas) {
+      global.SpotArViewfinder.renderExplorerPassportCanvas({
+        canvas: passportCanvas,
+        landmarks,
+        completedIds: state.completedMissions,
+        explorerNickname: state.explorerNickname,
+        totalXp: state.totalXp,
+      });
+    }
   }
 
-  function renderLounge(activeLm, isUnlocked) {
+  function renderLounge(activeLm, isUnlocked, connStatus) {
     const lockedCard = document.getElementById('sqLoungeLockedCard');
     const unlockedArea = document.getElementById('sqLoungeUnlockedArea');
     const titleEl = document.getElementById('sqLoungeSpotTitle');
+    const peerBannerEl = document.getElementById('sqHonestPeerBanner');
     if (titleEl) titleEl.textContent = `${activeLm.name} — 4h Local Lounge`;
+
+    if (peerBannerEl) {
+      peerBannerEl.textContent = connStatus.isLiveServer
+        ? `🟢 Connected to live zone room (${activeLm.zone.zoneId}) • ${connStatus.livePeerCount} explorers online right now.`
+        : `⚪ 0 other live explorers in ${activeLm.zone.zoneId} right now (Local/Offline Mode — zero synthetic bots). Connect a Cloudflare Worker backend in Server Settings or invite a friend!`;
+    }
 
     if (lockedCard && unlockedArea) {
       if (isUnlocked) {
@@ -279,6 +347,23 @@
         lockedCard.removeAttribute('hidden');
         unlockedArea.setAttribute('hidden', 'hidden');
         return;
+      }
+    }
+
+    // PingPod 3-6 Person Group Mission Status
+    const activePod = global.SpotLounge.getActivePingPod(activeLm.id);
+    const podStatusEl = document.getElementById('sqPingPodStatusText');
+    const btnPingPod = document.getElementById('btnStartPingPod');
+    const btnLeavePod = document.getElementById('btnLeavePingPod');
+    if (podStatusEl && btnPingPod && btnLeavePod) {
+      if (activePod) {
+        podStatusEl.textContent = `Active PingPod (${activePod.members.length}/${activePod.maxMembers} explorers: ${activePod.members.join(', ')}) • 60m TTL • Waiting for ${Math.max(0, activePod.minMembers - activePod.members.length)} more real nearby explorers (0 fake bots).`;
+        btnPingPod.textContent = '✓ In PingPod Squad';
+        btnLeavePod.removeAttribute('hidden');
+      } else {
+        podStatusEl.textContent = 'Form a 3–6 person 60-minute group photo mission at this public landmark.';
+        btnPingPod.textContent = '🤝 Start 3–6 Person PingPod';
+        btnLeavePod.setAttribute('hidden', 'hidden');
       }
     }
 
@@ -304,7 +389,7 @@
       const empty = createSafeEl(
         'div',
         '',
-        'You unlocked this landmark lounge! Tap a quick-reply chip above or type a hello below. Messages auto-delete after 4 hours (zero fake bots).'
+        '0 explorers have posted in this 300m zone in the last 4 hours — share your SpotCard or drop the first real hello below! (Zero synthetic bots).'
       );
       empty.style.color = '#94a3b8';
       empty.style.fontSize = '0.84rem';
@@ -375,7 +460,7 @@
       zoneId: activeLm.zone.zoneId,
     });
     if (!res.ok) {
-      showToast(`Message blocked (${res.reason}). Keep chat friendly & zero PII!`);
+      showToast(`Message blocked (${res.reason}). Phone numbers & unsafe text are filtered.`);
       return;
     }
     global.SpotAudio.playCue('tap');
@@ -383,11 +468,51 @@
     renderUI();
   }
 
+  function verifyInteractiveControls() {
+    const requiredButtonIds = [
+      'btnToggleAudio',
+      'btnOpenSafetyModal',
+      'btnOpenPlusModal',
+      'sqStepTab1',
+      'sqStepTab2',
+      'sqStepTab3',
+      'sqStepTab4',
+      'btnFindNearMe',
+      'btnZoomInMap',
+      'btnZoomOutMap',
+      'btnToggleMapTiles',
+      'btnStartMissionHere',
+      'btnBackToMap',
+      'btnSourceCamera',
+      'btnSourceUpload',
+      'btnSourceScene',
+      'btnSnapSpotCard',
+      'btnDownloadSpotCard',
+      'btnEnterUnlockedLounge',
+      'btnUnlockFromLounge',
+      'btnStartPingPod',
+      'btnLeavePingPod',
+      'btnPostLoungeMsg',
+      'btnDownloadPassport',
+      'btnConnectServer',
+      'btnCloseSafetyModal',
+      'btnClosePlusModal',
+    ];
+    if (typeof document === 'undefined') {
+      return { ok: true, checkedCount: requiredButtonIds.length, missingIds: [] };
+    }
+    const missingIds = requiredButtonIds.filter((id) => !document.getElementById(id));
+    return {
+      ok: missingIds.length === 0,
+      checkedCount: requiredButtonIds.length,
+      missingIds,
+    };
+  }
+
   function bindEvents() {
     if (typeof document === 'undefined') return;
 
-    // Stepper tabs
-    [1, 2, 3].forEach((n) => {
+    [1, 2, 3, 4].forEach((n) => {
       const tab = document.getElementById(`sqStepTab${n}`);
       if (tab) {
         tab.addEventListener('click', () => {
@@ -397,10 +522,43 @@
       }
     });
 
-    // Interactive Map Canvas click!
+    // Interactive Map Canvas: Drag-to-Pan + Click Pin Selection!
     const mapCanvas = document.getElementById('sqMapCanvas');
     if (mapCanvas) {
+      mapCanvas.addEventListener('pointerdown', (e) => {
+        isDraggingMap = true;
+        dragMoved = false;
+        dragStartX = e.clientX;
+        dragStartY = e.clientY;
+      });
+      mapCanvas.addEventListener('pointermove', (e) => {
+        if (!isDraggingMap) return;
+        const dx = e.clientX - dragStartX;
+        const dy = e.clientY - dragStartY;
+        if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+          dragMoved = true;
+          dragStartX = e.clientX;
+          dragStartY = e.clientY;
+          const st = global.SpotState.getState();
+          const nextCenter = global.SpotMapRadar.panCenterByPixels(
+            st.mapCenterLat,
+            st.mapCenterLon,
+            st.mapZoom,
+            dx,
+            dy
+          );
+          global.SpotState.saveState({
+            mapCenterLat: nextCenter.centerLat,
+            mapCenterLon: nextCenter.centerLon,
+          });
+          renderUI();
+        }
+      });
+      mapCanvas.addEventListener('pointerup', () => {
+        isDraggingMap = false;
+      });
       mapCanvas.addEventListener('click', (e) => {
+        if (dragMoved) return;
         const rect = mapCanvas.getBoundingClientRect();
         const scaleX = mapCanvas.width / (rect.width || mapCanvas.width);
         const scaleY = mapCanvas.height / (rect.height || mapCanvas.height);
@@ -414,12 +572,50 @@
         if (hitId) {
           const lm = global.SpotGeoPrivacy.getCuratedLandmarks().find((l) => l.id === hitId);
           global.SpotAudio.playCue('tap');
-          global.SpotState.saveState({ selectedLandmarkId: hitId, lastMissionCompletedId: null });
+          global.SpotState.saveState({
+            selectedLandmarkId: hitId,
+            mapCenterLat: lm ? lm.lat : 22.305,
+            mapCenterLon: lm ? lm.lon : 114.175,
+            lastMissionCompletedId: null,
+          });
           showToast(`📍 Selected ${lm ? lm.name : hitId}! Tap "Start AR Photo Mission" below.`);
           renderUI();
         } else {
-          showToast('Tap directly on a glowing pink/blue pin on the map to pick a spot!');
+          showToast('Drag to pan the map, or tap any glowing pin to select a spot!');
         }
+      });
+    }
+
+    // Map Zoom In / Zoom Out / Tile Toggle
+    const btnZoomIn = document.getElementById('btnZoomInMap');
+    if (btnZoomIn) {
+      btnZoomIn.addEventListener('click', () => {
+        const z = Math.min(16, (global.SpotState.getState().mapZoom || 12) + 1);
+        global.SpotAudio.playCue('tap');
+        global.SpotState.saveState({ mapZoom: z });
+        showToast(`🔍 Map Zoom: Level ${z}`);
+        renderUI();
+      });
+    }
+    const btnZoomOut = document.getElementById('btnZoomOutMap');
+    if (btnZoomOut) {
+      btnZoomOut.addEventListener('click', () => {
+        const z = Math.max(11, (global.SpotState.getState().mapZoom || 12) - 1);
+        global.SpotAudio.playCue('tap');
+        global.SpotState.saveState({ mapZoom: z });
+        showToast(`🔍 Map Zoom: Level ${z}`);
+        renderUI();
+      });
+    }
+    const btnTileMode = document.getElementById('btnToggleMapTiles');
+    if (btnTileMode) {
+      btnTileMode.addEventListener('click', () => {
+        const cur = global.SpotState.getState().mapTileMode;
+        const next = cur === 'osm_streets' ? 'vector_grid' : 'osm_streets';
+        global.SpotAudio.playCue('tap');
+        global.SpotState.saveState({ mapTileMode: next });
+        showToast(next === 'osm_streets' ? '🗺️ Switched to OpenStreetMap Street Tiles' : '🌐 Switched to Offline Vector Grid');
+        renderUI();
       });
     }
 
@@ -429,29 +625,33 @@
       btnNearMe.addEventListener('click', () => {
         global.SpotAudio.playCue('tap');
         if (typeof navigator === 'undefined' || !navigator.geolocation) {
-          showToast('📍 Location unavailable — showing Hong Kong public landmarks!');
+          showToast('📍 Geolocation unavailable — showing Hong Kong public landmarks!');
           return;
         }
-        showToast('📍 Checking your 300m fuzzy zone...');
+        showToast('📍 Locating your 300m fuzzy privacy zone...');
         navigator.geolocation.getCurrentPosition(
           (pos) => {
             const nearest = global.SpotGeoPrivacy.findNearestLandmark(
               pos.coords.latitude,
               pos.coords.longitude
             );
-            global.SpotState.saveState({ selectedLandmarkId: nearest.landmark.id });
+            global.SpotState.saveState({
+              selectedLandmarkId: nearest.landmark.id,
+              mapCenterLat: nearest.landmark.lat,
+              mapCenterLon: nearest.landmark.lon,
+              mapZoom: 14,
+            });
             showToast(`📍 Nearest spot: ${nearest.landmark.shortName} (300m privacy mask active)`);
             renderUI();
           },
           () => {
-            showToast('📍 GPS off — pick any glowing landmark pin on the map!');
+            showToast('📍 GPS permission off — drag the map or tap any glowing pin!');
           },
           { timeout: 5000 }
         );
       });
     }
 
-    // Start Mission -> Step 2
     const btnStartMission = document.getElementById('btnStartMissionHere');
     if (btnStartMission) {
       btnStartMission.addEventListener('click', () => {
@@ -461,7 +661,6 @@
       });
     }
 
-    // Back to Map button
     const btnBackMap = document.getElementById('btnBackToMap');
     if (btnBackMap) {
       btnBackMap.addEventListener('click', () => {
@@ -470,7 +669,6 @@
       });
     }
 
-    // Photo source controls (Live Camera / Upload Photo / Neon Scene)
     const btnLiveCam = document.getElementById('btnSourceCamera');
     if (btnLiveCam) btnLiveCam.addEventListener('click', startLiveCamera);
 
@@ -511,7 +709,6 @@
       });
     }
 
-    // Tap AR Viewfinder Canvas to reposition AR Sticker!
     const arCanvas = document.getElementById('sqArCanvas');
     if (arCanvas) {
       arCanvas.addEventListener('click', (e) => {
@@ -525,7 +722,6 @@
       });
     }
 
-    // Big Shutter Button: Flash + Sound + XP + Unlock Lounge!
     const btnSnap = document.getElementById('btnSnapSpotCard');
     if (btnSnap) {
       btnSnap.addEventListener('click', () => {
@@ -538,7 +734,6 @@
         const activeLm = getActiveLandmark();
         drawCurrentArFrame();
 
-        // Trigger camera shutter flash
         const flash = document.getElementById('sqFlashOverlay');
         if (flash) {
           flash.classList.add('is-flashing');
@@ -564,12 +759,11 @@
           setTimeout(() => xpPill.classList.remove('is-pop'), 350);
         }
 
-        showToast(`🎉 Mission Complete! +${activeLm.xpReward} XP & ${activeLm.shortName} Lounge Unlocked!`);
+        showToast(`🎉 Stamp Unlocked! +${activeLm.xpReward} XP & ${activeLm.shortName} Lounge Opened!`);
         renderUI();
       });
     }
 
-    // Download SpotCard PNG
     const btnDownload = document.getElementById('btnDownloadSpotCard');
     if (btnDownload) {
       btnDownload.addEventListener('click', () => {
@@ -587,7 +781,6 @@
       });
     }
 
-    // Enter Unlocked Lounge button -> Step 3
     const btnGoLounge = document.getElementById('btnEnterUnlockedLounge');
     if (btnGoLounge) {
       btnGoLounge.addEventListener('click', () => {
@@ -596,7 +789,6 @@
       });
     }
 
-    // Go Complete Mission button on Locked Lounge -> Step 2
     const btnUnlockNow = document.getElementById('btnUnlockFromLounge');
     if (btnUnlockNow) {
       btnUnlockNow.addEventListener('click', () => {
@@ -605,7 +797,35 @@
       });
     }
 
-    // Post message to lounge (button + Enter key)
+    // PingPod 1-Tap Create/Join & Leave
+    const btnPingPod = document.getElementById('btnStartPingPod');
+    if (btnPingPod) {
+      btnPingPod.addEventListener('click', () => {
+        const st = global.SpotState.getState();
+        const lm = getActiveLandmark();
+        global.SpotLounge.createOrJoinPingPod({
+          landmarkId: lm.id,
+          zoneId: lm.zone.zoneId,
+          nickname: st.explorerNickname,
+          missionTitle: `${lm.shortName} 3–6 Person Group SpotCard`,
+        });
+        global.SpotAudio.playCue('unlock');
+        showToast(`🤝 Joined ${lm.shortName} PingPod (60m group mission)!`);
+        renderUI();
+      });
+    }
+    const btnLeavePod = document.getElementById('btnLeavePingPod');
+    if (btnLeavePod) {
+      btnLeavePod.addEventListener('click', () => {
+        const st = global.SpotState.getState();
+        const lm = getActiveLandmark();
+        global.SpotLounge.leavePingPod(lm.id, st.explorerNickname);
+        global.SpotAudio.playCue('tap');
+        showToast('Left PingPod group mission.');
+        renderUI();
+      });
+    }
+
     const msgInput = document.getElementById('sqLoungeMsgInput');
     const btnPost = document.getElementById('btnPostLoungeMsg');
     if (btnPost) {
@@ -625,7 +845,41 @@
       });
     }
 
-    // Nickname input
+    // Passport PNG Exporter (POD2B-202)
+    const btnDownloadPassport = document.getElementById('btnDownloadPassport');
+    if (btnDownloadPassport) {
+      btnDownloadPassport.addEventListener('click', () => {
+        const pCanvas = document.getElementById('sqPassportCanvas');
+        const dataUrl = global.SpotArViewfinder.exportSpotCardDataUrl(pCanvas);
+        if (!dataUrl) return;
+        const a = document.createElement('a');
+        a.href = dataUrl;
+        a.download = `SpotQuest_Passport_${global.SpotVersion.BUILD_ID}.png`;
+        a.click();
+        global.SpotAudio.playCue('unlock');
+        showToast('🛂 Explorer Passport PNG downloaded!');
+      });
+    }
+
+    // Live Backend Connection Config in Safety/Server Modal
+    const btnConnectServer = document.getElementById('btnConnectServer');
+    if (btnConnectServer) {
+      btnConnectServer.addEventListener('click', () => {
+        const urlIn = document.getElementById('sqApiUrlInput');
+        const urlVal = urlIn ? String(urlIn.value || '').trim() : '';
+        const lm = getActiveLandmark();
+        global.SpotState.saveState({ apiEndpointUrl: urlVal });
+        const res = global.SpotLounge.configureBackend(urlVal, lm.zone.zoneId, () => renderUI());
+        global.SpotAudio.playCue('tap');
+        showToast(
+          urlVal
+            ? `🌐 Backend set (${res.connectionState})`
+            : '⚪ Switched to Local/Offline Mode (0 synthetic bots)'
+        );
+        renderUI();
+      });
+    }
+
     const nickInput = document.getElementById('sqNicknameInput');
     if (nickInput) {
       nickInput.addEventListener('change', (e) => {
@@ -636,7 +890,6 @@
       });
     }
 
-    // Audio mute toggle
     const btnAudio = document.getElementById('btnToggleAudio');
     if (btnAudio) {
       btnAudio.addEventListener('click', () => {
@@ -648,7 +901,6 @@
       });
     }
 
-    // Safety Modal + Speed Simulator
     const btnOpenSafety = document.getElementById('btnOpenSafetyModal');
     const btnCloseSafety = document.getElementById('btnCloseSafetyModal');
     const safetyModal = document.getElementById('sqSafetyModalBackdrop');
@@ -668,7 +920,6 @@
       });
     }
 
-    // SpotQuest Plus Modal
     const btnOpenPro = document.getElementById('btnOpenPlusModal');
     const btnClosePro = document.getElementById('btnClosePlusModal');
     const proModal = document.getElementById('sqPlusModalBackdrop');
@@ -698,6 +949,7 @@
     setActiveStep,
     applyFavicon,
     showToast,
+    verifyInteractiveControls,
   });
 
   if (typeof document !== 'undefined') {

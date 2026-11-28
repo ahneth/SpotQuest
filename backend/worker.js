@@ -1,5 +1,5 @@
-// Version: 1.2.0 | Last Modified: 2026-11-23 11:08 HKT | Build: 20261123_1108
-// Module: backend/worker.js — Deployable Cloudflare Worker + Durable Object for SpotQuest 300m Zone Rooms & PingPods (Priya Nair 18 & Ronan Sterling-Kwan 15)
+// Version: 2.1.0 | Last Modified: 2026-11-28 11:36 HKT | Build: 20261128_1136
+// Module: backend/worker.js — Deployable Cloudflare Worker + Durable Object for SpotQuest 300m Zone Rooms, PingPods, Daily First-to-Snap Pulse & Live /health Diagnostics (Priya Nair 18 & Ronan Sterling-Kwan 15)
 // Free-Tier / <$50/mo Bootstrap Cap Compliant • 4-Hour Ephemeral TTL • Hardened HK/Intl Phone PII Filter • Zero Synthetic Bots
 
 const BLOCKED_PATTERNS = [
@@ -13,6 +13,7 @@ export class SpotQuestZoneRoom {
     this.state = state;
     this.sessions = new Set();
     this.messages = [];
+    this.dailyCheckIns = new Map();
     this.ttlMs = 4 * 3600 * 1000;
   }
 
@@ -64,6 +65,21 @@ export class SpotQuestZoneRoom {
       return new Response(null, { status: 101, webSocket: client });
     }
 
+    if (url.pathname.endsWith('/health') && request.method === 'GET') {
+      return new Response(
+        JSON.stringify({
+          ok: true,
+          service: 'SpotQuestZoneRoom',
+          version: '2.1.0',
+          buildId: '20261128_1136',
+          peerCount: this.sessions.size,
+          activeMessages: this.messages.length,
+          zeroSyntheticData: true,
+        }),
+        { headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } }
+      );
+    }
+
     if (url.pathname.endsWith('/messages') && request.method === 'GET') {
       return new Response(
         JSON.stringify({ ok: true, peerCount: this.sessions.size, messages: this.messages }),
@@ -71,7 +87,7 @@ export class SpotQuestZoneRoom {
       );
     }
 
-    return new Response(JSON.stringify({ ok: true, service: 'SpotQuestZoneRoom' }), {
+    return new Response(JSON.stringify({ ok: true, service: 'SpotQuestZoneRoom', version: '2.1.0' }), {
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
     });
   }
@@ -87,7 +103,7 @@ export default {
       return stub.fetch(request);
     }
     return new Response(
-      JSON.stringify({ ok: true, zoneId, mode: 'stateless_healthcheck', zeroSyntheticData: true }),
+      JSON.stringify({ ok: true, zoneId, version: '2.1.0', buildId: '20261128_1136', mode: 'stateless_healthcheck', zeroSyntheticData: true }),
       { headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } }
     );
   },

@@ -1,8 +1,8 @@
-# Version: 1.2.0 | Last Modified: 2026-11-23 11:08 HKT | Build: 20261123_1108
-# Deployable Cloudflare Worker + Durable Object configuration for SpotQuest v1.2.0
+# Version: 2.1.0 | Last Modified: 2026-11-28 11:36 HKT | Build: 20261128_1136
+# Deployable Cloudflare Worker + Durable Object configuration for SpotQuest v2.1.0
 name = "spotquest-realtime-rooms"
 main = "worker.js"
-compatibility_date = "2026-11-23"
+compatibility_date = "2026-11-24"
 
 [durable_objects]
 bindings = [

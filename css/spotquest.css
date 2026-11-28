@@ -1,5 +1,5 @@
-/* Version: 1.2.0 | Last Modified: 2026-11-23 11:08 HKT | Build: 20261123_1108 */
-/* Module: css/spotquest.css — Full-Screen 60dvh Interactive OSM Map, AR Viewfinder, Client-Server Lounge & Passport (Elena Park 16) */
+/* Version: 2.1.0 | Last Modified: 2026-11-28 11:36 HKT | Build: 20261128_1136 */
+/* Module: css/spotquest.css — Full-Screen 60dvh Interactive OSM Map, Live Overpass <=200m POIs, Big Mission X/6 Progress Bar, Explorer Rank Recap Card & Passport (Elena Park 16) */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html, body {
   background: var(--bg-canvas);
@@ -172,6 +172,63 @@ html, body {
 .sq-hero-title { font-size: 1.12rem; font-weight: 800; color: var(--text-primary); }
 .sq-hero-sub { font-size: 0.82rem; color: var(--text-secondary); }
 
+/* Mission Category Bar (FD-P0-20261124-01: <=200m Walking Mini-Missions vs City Big Missions) */
+.sq-category-bar {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.sq-cat-btn {
+  min-height: 40px;
+  padding: 6px 13px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--border-subtle);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.sq-cat-btn[aria-pressed="true"] {
+  background: rgba(74, 222, 128, 0.16);
+  border-color: var(--accent-emerald);
+  color: var(--text-primary);
+}
+
+/* POD2B-503: Big Mission Multi-Stop Progress Bar & Trail Checkmarks */
+.sq-trail-progress-card {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(250, 204, 21, 0.10));
+  border: 1.5px solid var(--accent-gold);
+  border-radius: 14px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.sq-trail-progress-track {
+  width: 100%;
+  height: 10px;
+  background: #070b14;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+.sq-trail-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-cyan), var(--accent-emerald));
+  width: 0%;
+  transition: width 0.25s ease;
+}
+
 /* Large 60dvh Interactive Map Viewport (FD-P0-20261123-02 Mandate #2) */
 .sq-map-viewport {
   position: relative;
@@ -241,6 +298,16 @@ html, body {
   flex-direction: column;
   gap: 8px;
 }
+.sq-custom-spot-panel {
+  background: var(--bg-elevated);
+  border: 1.5px solid var(--accent-gold);
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sq-custom-spot-panel[hidden] { display: none !important; }
 .sq-spot-badges { display: flex; flex-wrap: wrap; gap: 6px; }
 .sq-badge {
   font-size: 0.74rem;
@@ -254,6 +321,7 @@ html, body {
 .sq-badge-emerald { border-color: var(--accent-emerald); color: var(--accent-emerald); }
 .sq-badge-gold { border-color: var(--accent-gold); color: var(--accent-gold); }
 .sq-badge-cyan { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+.sq-badge-magenta { border-color: var(--accent-magenta); color: var(--accent-magenta); }
 .sq-spot-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
@@ -261,7 +329,7 @@ html, body {
 }
 .sq-spot-chip {
   text-align: left;
-  min-height: 52px;
+  min-height: 54px;
   padding: 9px 11px;
   border-radius: 12px;
   border: 1px solid var(--border-subtle);
@@ -296,6 +364,17 @@ html, body {
   background: rgba(244, 114, 182, 0.2);
   border-color: var(--accent-magenta);
   color: var(--text-primary);
+}
+.sq-carousel-bar {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 .sq-celebration-box {
   background: rgba(74, 222, 128, 0.12);
@@ -337,6 +416,47 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+.sq-friendcode-card {
+  background: linear-gradient(135deg, rgba(244, 114, 182, 0.12), rgba(56, 189, 248, 0.10));
+  border: 1.5px solid var(--accent-magenta);
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sq-friendcode-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: center;
+}
+@media (max-width: 560px) {
+  .sq-friendcode-grid { grid-template-columns: 1fr; }
+}
+.sq-qr-box {
+  background: #070b14;
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.sq-crew-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.sq-diag-box {
+  background: #070b14;
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  color: var(--accent-cyan);
 }
 .sq-lounge-feed {
   background: #070b14;
@@ -409,12 +529,14 @@ html, body {
   background: var(--bg-surface);
   border: 1.5px solid var(--accent-cyan);
   border-radius: var(--radius-card);
-  max-width: 520px;
+  max-width: 540px;
   width: 100%;
   padding: 18px;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  max-height: 92dvh;
+  overflow-y: auto;
 }
 .sq-tier-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .sq-tier-card {
@@ -428,4 +550,73 @@ html, body {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+
+/* FD-P0-20261128-01: Prominent, Unmistakable Cartoon Mascot Hero Stage & Per-Step Companion Cards */
+@keyframes sqMascotIdleBounce {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  50% { transform: translateY(-5px) scale(1.03); }
+}
+.sq-mascot-hero-stage {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(30, 27, 75, 0.94));
+  border: 2px solid var(--accent-cyan);
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.25);
+  border-radius: var(--radius-card);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.sq-mascot-stage-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+  min-width: 260px;
+}
+.sq-mascot-avatar-ring {
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  background: #070b14;
+  border: 3px solid var(--accent-gold);
+  box-shadow: 0 0 14px rgba(250, 204, 21, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  animation: sqMascotIdleBounce 2.4s ease-in-out infinite;
+}
+.sq-mascot-avatar-ring.is-reduced-motion {
+  animation: none !important;
+}
+.sq-mascot-speech-bubble {
+  background: rgba(7, 11, 20, 0.92);
+  border: 1.5px solid var(--accent-magenta);
+  border-radius: 14px;
+  padding: 9px 13px;
+  flex: 1;
+}
+.sq-mascot-step-banner {
+  background: linear-gradient(90deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.92));
+  border: 2px solid var(--accent-emerald);
+  border-radius: 14px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.sq-mascot-step-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 2.5px solid var(--accent-cyan);
+  background: #070b14;
+  flex-shrink: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sq-mascot-avatar-ring { animation: none !important; }
 }

@@ -1,5 +1,5 @@
-// Version: 1.2.0 | Last Modified: 2026-11-23 11:08 HKT | Build: 20261123_1108
-// Module: js/mapRadar.js — Real Interactive OpenStreetMap Slippy Tile Map (Pan/Zoom/Web Mercator) + Offline Vector Fallback (Ronan Sterling-Kwan 15 & Kai Lindqvist 17)
+// Version: 2.1.0 | Last Modified: 2026-11-28 11:36 HKT | Build: 20261128_1136
+// Module: js/mapRadar.js — Real Interactive OpenStreetMap Slippy Tile Map (Pan/Zoom/Web Mercator) + 200m Walking Mini-Mission Ring & Live Overpass POI Pins + Offline Vector Fallback (Ronan Sterling-Kwan 15 & Kai Lindqvist 17)
 (function (global) {
   'use strict';
   let lastHitRegions = [];
@@ -27,9 +27,9 @@
   }
 
   function projectCoordsToCanvas(lat, lon, width, height, viewState = null) {
-    const centerLat = viewState && viewState.centerLat ? viewState.centerLat : 22.312;
-    const centerLon = viewState && viewState.centerLon ? viewState.centerLon : 114.185;
-    const zoom = viewState && viewState.zoom ? viewState.zoom : 12;
+    const centerLat = viewState && viewState.centerLat ? viewState.centerLat : 22.2938;
+    const centerLon = viewState && viewState.centerLon ? viewState.centerLon : 114.1712;
+    const zoom = viewState && viewState.zoom ? viewState.zoom : 16;
 
     const centerPxX = lonToTileX(centerLon, zoom) * 256;
     const centerPxY = latToTileY(centerLat, zoom) * 256;
@@ -46,13 +46,13 @@
     const cx = lonToTileX(centerLon, zoom) - dxPx / 256;
     const cy = latToTileY(centerLat, zoom) - dyPx / 256;
     return {
-      centerLat: Number(Math.min(22.55, Math.max(22.15, tileYToLat(cy, zoom))).toFixed(5)),
-      centerLon: Number(Math.min(114.45, Math.max(113.85, tileXToLon(cx, zoom))).toFixed(5)),
+      centerLat: Number(Math.min(85, Math.max(-85, tileYToLat(cy, zoom))).toFixed(5)),
+      centerLon: Number(Math.min(180, Math.max(-180, tileXToLon(cx, zoom))).toFixed(5)),
     };
   }
 
   function drawOsmSlippyTiles(ctx, width, height, centerLat, centerLon, zoom, onTileLoaded) {
-    const z = Math.min(17, Math.max(10, Math.round(zoom)));
+    const z = Math.min(18, Math.max(10, Math.round(zoom)));
     const centerTileX = lonToTileX(centerLon, z);
     const centerTileY = latToTileY(centerLat, z);
     const startTileX = Math.floor(centerTileX - width / 512) - 1;
@@ -111,10 +111,13 @@
     const ctx = canvas.getContext('2d');
     const w = canvas.width || 860;
     const h = canvas.height || 520;
-    const centerLat = mapOptions.centerLat || 22.305;
-    const centerLon = mapOptions.centerLon || 114.175;
-    const zoom = mapOptions.zoom || 12;
+    const centerLat = mapOptions.centerLat || 22.2938;
+    const centerLon = mapOptions.centerLon || 114.1712;
+    const anchorLat = mapOptions.anchorLat || centerLat;
+    const anchorLon = mapOptions.anchorLon || centerLon;
+    const zoom = mapOptions.zoom || 16;
     const tileMode = mapOptions.tileMode || 'osm_streets';
+    const categoryFilter = mapOptions.categoryFilter || 'mini';
     const viewState = { centerLat, centerLon, zoom };
 
     // 1. Base Harbour Night Vector Backdrop (Always instant & offline-safe)
@@ -147,7 +150,6 @@
         mapOptions.onTileLoaded
       );
       if (osmTilesRendered > 0) {
-        // Slight dark tint so high-contrast neon 300m privacy zones pop clearly over OSM streets
         ctx.fillStyle = 'rgba(7, 11, 20, 0.22)';
         ctx.fillRect(0, 0, w, h);
       }
@@ -165,11 +167,40 @@
       ctx.fill();
     }
 
-    // 3. Project & Render Curated Public Landmarks + 300m Fuzzy Privacy Zones
-    const pts = landmarks.map((lm) => ({
-      lm,
-      pt: projectCoordsToCanvas(lm.zone.centerLat, lm.zone.centerLon, w, h, viewState),
-    }));
+    // 3. Draw Player 200m Walking Mini-Mission Radius Ring (FD-P0-20261124-01)
+    const anchorPt = projectCoordsToCanvas(anchorLat, anchorLon, w, h, viewState);
+    const edgePt = projectCoordsToCanvas(anchorLat + 200 / 111320, anchorLon, w, h, viewState);
+    const walkRadiusPx = Math.max(38, Math.min(240, Math.abs(anchorPt.y - edgePt.y)));
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(anchorPt.x, anchorPt.y, walkRadiusPx, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(74, 222, 128, 0.08)';
+    ctx.fill();
+    ctx.setLineDash([6, 4]);
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'rgba(74, 222, 128, 0.65)';
+    ctx.stroke();
+    ctx.restore();
+
+    // Player Anchor Center Dot ("YOU · 200m Walk Zone")
+    ctx.beginPath();
+    ctx.arc(anchorPt.x, anchorPt.y, 6, 0, Math.PI * 2);
+    ctx.fillStyle = '#38bdf8';
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#ffffff';
+    ctx.stroke();
+
+    // 4. Project & Render Landmarks
+    const pts = landmarks.map((lm) => {
+      const drawLat = lm.isMiniMission ? lm.lat : (lm.zone ? lm.zone.centerLat : lm.lat);
+      const drawLon = lm.isMiniMission ? lm.lon : (lm.zone ? lm.zone.centerLon : lm.lon);
+      return {
+        lm,
+        pt: projectCoordsToCanvas(drawLat, drawLon, w, h, viewState),
+      };
+    });
 
     ctx.save();
     ctx.setLineDash([5, 6]);
@@ -187,10 +218,17 @@
     pts.forEach(({ lm, pt }) => {
       const isSelected = lm.id === selectedLandmarkId;
       const isCompleted = completedIds.includes(lm.id);
-      const color = isCompleted ? '#4ade80' : isSelected ? '#38bdf8' : '#f472b6';
+      const color = isCompleted
+        ? '#4ade80'
+        : isSelected
+        ? '#38bdf8'
+        : lm.missionCategory === 'mini'
+        ? '#4ade80'
+        : lm.isCustom
+        ? '#facc15'
+        : '#f472b6';
 
-      // 300m Coarse Fuzzy-Zone Privacy Ring
-      const ringRadius = isSelected ? 36 : 24;
+      const ringRadius = isSelected ? 34 : 22;
       ctx.beginPath();
       ctx.arc(pt.x, pt.y, ringRadius, 0, Math.PI * 2);
       ctx.fillStyle = isSelected ? 'rgba(56, 189, 248, 0.28)' : 'rgba(15, 23, 42, 0.55)';
@@ -199,20 +237,19 @@
       ctx.strokeStyle = color;
       ctx.stroke();
 
-      // Inner Landmark Beacon
       ctx.beginPath();
       ctx.arc(pt.x, pt.y, isSelected ? 10 : 7, 0, Math.PI * 2);
       ctx.fillStyle = color;
       ctx.fill();
 
-      // Label Pill
-      const label = `${isCompleted ? '✓ ' : ''}${lm.shortName || lm.name}`;
+      const prefix = isCompleted ? '✓ ' : lm.missionCategory === 'mini' ? '🚶 ' : lm.isCustom ? '★ ' : '🗺️ ';
+      const label = `${prefix}${lm.shortName || lm.name}`;
       ctx.font = isSelected ? '800 13px Inter, sans-serif' : '700 11px Inter, sans-serif';
       ctx.textAlign = 'center';
       const tw = ctx.measureText ? ctx.measureText(label).width : label.length * 7;
       const pillW = tw + 16;
       const pillX = Math.min(w - pillW / 2 - 8, Math.max(pillW / 2 + 8, pt.x));
-      const pillY = Math.max(26, pt.y - (isSelected ? 44 : 32));
+      const pillY = Math.max(26, pt.y - (isSelected ? 42 : 30));
 
       ctx.fillStyle = isSelected ? '#0284c7' : 'rgba(15, 23, 42, 0.92)';
       ctx.fillRect(pillX - pillW / 2, pillY - 13, pillW, 20);
@@ -222,20 +259,20 @@
       ctx.fillStyle = '#f8fafc';
       ctx.fillText(label, pillX, pillY + 1);
 
-      hitRegions.push({ id: lm.id, x: pt.x, y: pt.y, radius: 40 });
+      hitRegions.push({ id: lm.id, x: pt.x, y: pt.y, radius: 42 });
     });
 
     // Top-left Live Map Status HUD
-    ctx.fillStyle = 'rgba(7, 11, 20, 0.84)';
-    ctx.fillRect(10, 10, 420, 26);
+    ctx.fillStyle = 'rgba(7, 11, 20, 0.86)';
+    ctx.fillRect(10, 10, 480, 26);
     ctx.textAlign = 'left';
     ctx.font = '700 11px JetBrains Mono, monospace';
     ctx.fillStyle = '#4ade80';
-    const modeLabel = tileMode === 'osm_streets' ? `OSM STREET TILES (Z${zoom})` : `OFFLINE VECTOR GRID (Z${zoom})`;
-    ctx.fillText(`${modeLabel} • DRAG TO PAN • 300M FUZZY ZONE • 0 FAKE DOTS`, 18, 27);
+    const catLabel = categoryFilter === 'mini' ? 'WALKING MINI-MISSIONS (<=200M)' : categoryFilter === 'big' ? 'CITY-WIDE BIG MISSIONS' : 'ALL MISSIONS';
+    ctx.fillText(`${catLabel} • Z${zoom} • ${landmarks.length} SPOTS • 300M CHAT PRIVACY`, 18, 27);
 
     lastHitRegions = hitRegions;
-    return { ok: true, hitRegions, osmTilesRendered, zoom };
+    return { ok: true, hitRegions, osmTilesRendered, zoom, walkRadiusPx };
   }
 
   function findLandmarkAtPoint(hitRegions, clickX, clickY) {

@@ -1,5 +1,5 @@
-// Version: 1.2.0 | Last Modified: 2026-11-23 11:08 HKT | Build: 20261123_1108
-// Module: js/proModal.js — Transparent SpotQuest Plus ($4.99/mo or $39/yr) & Static-Clean SVG Logo (Elena Park 16)
+// Version: 2.1.0 | Last Modified: 2026-11-28 11:36 HKT | Build: 20261128_1136
+// Module: js/proModal.js — Transparent SpotQuest Plus ($4.99/mo or $39/yr), Static-Clean SVG Logo & Standalone PWA Offline App Manifest (POD2B-801) (Ronan Sterling-Kwan 15, Aria Vance-Sato 14 & Elena Park 16)
 (function (global) {
   'use strict';
 
@@ -20,8 +20,46 @@
     annual: { id: 'spotquest_plus_annual', name: 'SpotQuest Plus Annual', priceUsd: 39.00, priceLabel: '$39.00 / yr' },
   });
 
+  const PWA_INSTALL_STEPS = Object.freeze([
+    '📱 iOS Safari: Tap Share -> "Add to Home Screen" for full-screen 200m walking radar.',
+    '🤖 Android Chrome: Tap Menu (⋮) -> "Install App" or "Add to Home Screen".',
+    '💻 Desktop Chrome / Edge: Click the Install icon in the address bar ($0.00 offline-first PWA).',
+  ]);
+
   function getLogoDataUri() {
     return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(SPOTQUEST_LOGO_SVG);
+  }
+
+  // POD2B-801: Zero-Host Inline Web App Manifest (data:application/manifest+json)
+  function buildOfflineAppManifest() {
+    const iconUri = getLogoDataUri();
+    return {
+      name: 'SpotQuest — <=200m Walking Mini-Missions & AR Local Quests',
+      short_name: 'SpotQuest',
+      description: 'Privacy-first <=200m walking mini-missions, zero-EXIF AR SpotCards, and 300m local lounges by NetHustle.',
+      start_url: '.',
+      display: 'standalone',
+      orientation: 'portrait-primary',
+      background_color: '#070b14',
+      theme_color: '#0f172a',
+      icons: [
+        {
+          src: iconUri,
+          sizes: '192x192 512x512',
+          type: 'image/svg+xml',
+          purpose: 'any maskable',
+        },
+      ],
+    };
+  }
+
+  function getWebAppManifestDataUri() {
+    const manifestObj = buildOfflineAppManifest();
+    return 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(JSON.stringify(manifestObj));
+  }
+
+  function getPwaInstallGuideSteps() {
+    return PWA_INSTALL_STEPS;
   }
 
   function verifySvgHygiene(svgString = SPOTQUEST_LOGO_SVG) {
@@ -34,11 +72,17 @@
     };
   }
 
-  function getPricingPlans() { return PRICING_PLANS; }
+  function getPricingPlans() {
+    return PRICING_PLANS;
+  }
 
   global.SpotPro = Object.freeze({
     SPOTQUEST_LOGO_SVG,
+    PWA_INSTALL_STEPS,
     getLogoDataUri,
+    buildOfflineAppManifest,
+    getWebAppManifestDataUri,
+    getPwaInstallGuideSteps,
     verifySvgHygiene,
     getPricingPlans,
   });
